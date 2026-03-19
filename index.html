@@ -324,31 +324,7 @@
   .tier-red    { background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.2); }
   .tier-orange { background: rgba(251,146,60,0.08);  border-color: rgba(251,146,60,0.2); }
 
-  /* ── 펫 타입 ── */
-  .pet-types {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-  }
 
-  @media (max-width: 560px) {
-    .pet-types { grid-template-columns: 1fr; }
-  }
-
-  .pet-type {
-    border-radius: 14px;
-    padding: 18px 14px;
-    border: 1px solid var(--border);
-    text-align: center;
-  }
-
-  .pet-type .type-icon { font-size: 28px; margin-bottom: 10px; }
-  .pet-type .type-name { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
-  .pet-type .type-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
-
-  .pet-gong { background: rgba(248,113,113,0.07); border-color: rgba(248,113,113,0.2); }
-  .pet-agi  { background: rgba(52,211,153,0.07);  border-color: rgba(52,211,153,0.2); }
-  .pet-tank { background: rgba(91,141,238,0.07);  border-color: rgba(91,141,238,0.2); }
 
   /* ── 환수 ── */
   .rebirth-track {
@@ -832,23 +808,44 @@
   </div>
 
   <div class="card">
-    <div class="card-title">🐾 펫 타입 3종</div>
-    <div class="pet-types">
-      <div class="pet-type pet-gong">
-        <div class="type-icon">⚔️🛡️</div>
-        <div class="type-name">공방펫</div>
-        <div class="type-desc">균형형<br>공격력과 방어력 특화<br>히트율과 크리 모두 준수</div>
+    <div class="card-title">📊 스탯별 전투 역할</div>
+    <div class="card-grid">
+      <div>
+        <div class="item-row">
+          <div class="item-icon">❤️</div>
+          <div>
+            <div class="item-name">체력 (내구력)</div>
+            <div class="item-desc">체력이 높을수록 <strong>크리티컬 발동 확률</strong>이 올라갑니다.<br>체력이 높은 펫은 한 번 터지면 큰 피해를 줍니다.</div>
+          </div>
+        </div>
+        <div class="item-row" style="border-bottom:none;">
+          <div class="item-icon">🛡️</div>
+          <div>
+            <div class="item-name">방어력</div>
+            <div class="item-desc">방어력이 높을수록 <strong>크리티컬 데미지 배율</strong>이 올라갑니다.<br>크리가 터졌을 때의 한 방이 강해집니다.</div>
+          </div>
+        </div>
       </div>
-      <div class="pet-type pet-agi">
-        <div class="type-icon">💨⚔️</div>
-        <div class="type-name">공순펫</div>
-        <div class="type-desc">안정형<br>공격력과 순발력 특화<br>히트율 최고, 꾸준한 딜</div>
+      <div>
+        <div class="item-row">
+          <div class="item-icon">⚔️</div>
+          <div>
+            <div class="item-name">공격력</div>
+            <div class="item-desc">공격력이 높을수록 <strong>기본 데미지</strong>가 직접 올라갑니다.<br>가장 직접적으로 딜에 기여하는 스탯입니다.</div>
+          </div>
+        </div>
+        <div class="item-row" style="border-bottom:none;">
+          <div class="item-icon">⚡</div>
+          <div>
+            <div class="item-name">순발력</div>
+            <div class="item-desc">순발력이 높을수록 <strong>공격 적중률</strong>이 올라갑니다.<br>빗나가면 데미지가 0이므로, 꾸준한 딜을 원한다면 중요합니다.</div>
+          </div>
+        </div>
       </div>
-      <div class="pet-type pet-tank">
-        <div class="type-icon">🛡️</div>
-        <div class="type-name">탱펫</div>
-        <div class="type-desc">한방형<br>내구력 극강<br>히트율 낮지만 크리 터지면 폭딜<br><span style="color:#93c5fd;font-size:11px;">ATK 보정 +30% 보유</span></div>
-      </div>
+    </div>
+    <div class="notice notice-gold" style="margin-top:12px;margin-bottom:0">
+      <span class="notice-icon">💡</span>
+      <div>스탯이 S급 기준치를 초과한 만큼 레이드 데미지에 <strong>추가 보너스</strong>가 붙습니다. 어떤 스탯이든 높을수록 유리합니다.</div>
     </div>
   </div>
 
@@ -929,7 +926,7 @@
       <div>
         <div class="item-name">초기화구슬</div>
         <div class="item-desc">펫을 <strong>Lv.1</strong>로 초기화합니다.<br>
-        환수 보정은 유지됩니다.<br>
+        환수 보정과 펫은 유지됩니다.<br>
         0환: 베이스 전체 재랜덤 / 1환↑: <strong>S급 베이스 유지</strong> + 나머지 재랜덤</div>
       </div>
     </div>
@@ -937,7 +934,7 @@
       <div class="item-icon">💫</div>
       <div>
         <div class="item-name">완전초기화구슬</div>
-        <div class="item-desc">펫 종류(타입)까지 완전히 재추첨하고 Lv.1로 초기화합니다.<br>
+        <div class="item-desc">펫을 완전히 재추첨하고 Lv.1로 초기화합니다.<br>
         환수 보정은 유지됩니다.<br>
         0환: 베이스 전체 재랜덤 / 1환↑: <strong>S급 베이스 유지</strong> + 나머지 재랜덤</div>
       </div>
@@ -1260,11 +1257,11 @@
     <div class="detail-body">
       <div class="item-row">
         <div class="item-icon">🔮</div>
-        <div><div class="item-name">초기화구슬</div><div class="item-desc">펫을 Lv.1로 초기화. 펫 타입 유지. S베이스 유지(1환↑). 환수 유지.</div></div>
+        <div><div class="item-name">초기화구슬</div><div class="item-desc">펫을 Lv.1로 초기화. 펫 유지. S베이스 유지(1환↑). 환수 유지.</div></div>
       </div>
       <div class="item-row">
         <div class="item-icon">💫</div>
-        <div><div class="item-name">완전초기화구슬</div><div class="item-desc">펫을 Lv.1로 초기화 + 펫 타입 재추첨. S베이스 유지(1환↑). 환수 유지.</div></div>
+        <div><div class="item-name">완전초기화구슬</div><div class="item-desc">펫을 완전히 재추첨하고 Lv.1로 초기화. S베이스 유지(1환↑). 환수 유지.</div></div>
       </div>
       <div class="item-row">
         <div class="item-icon">🌙</div>
