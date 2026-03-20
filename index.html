@@ -592,25 +592,14 @@
     </div>
   </div>
 
-  <div class="card-grid">
-    <div class="card" style="margin-bottom:0">
-      <div class="card-title">🌟 등급별 칭호</div>
-      <ul>
-        <li><span class="tag tag-blue">+0~9강</span> 일반</li>
-        <li><span class="tag tag-gold">+10~14강</span> 영웅급 — 무기 이름 표시</li>
-        <li><span class="tag tag-orange">+15~19강</span> 전설급 — 스탯포인트 보상</li>
-        <li><span class="tag tag-red">+20강</span> 신화급 — 환생 해금!</li>
-      </ul>
-    </div>
-    <div class="card" style="margin-bottom:0">
-      <div class="card-title">🏷️ 무기 이름 변경</div>
-      <ul>
-        <li><span class="highlight">+10강</span> 이상부터 가능</li>
-        <li>강화 포인트 <span class="highlight">10P</span> 소모</li>
-        <li>명령어: <code style="font-size:13px;">!무기이름 이름</code></li>
-        <li>최대 <span class="highlight">15글자</span> 입력 가능</li>
-      </ul>
-    </div>
+  <div class="card">
+    <div class="card-title">🏷️ 무기 이름 변경</div>
+    <ul>
+      <li><span class="highlight">+10강</span> 이상부터 가능</li>
+      <li>강화 포인트 <span class="highlight">10P</span> 소모</li>
+      <li>명령어: <code style="font-size:13px;">!무기이름 이름</code></li>
+      <li>최대 <span class="highlight">15글자</span> 입력 가능</li>
+    </ul>
   </div>
 
 
@@ -620,8 +609,8 @@
       <li><code style="background:var(--bg3);padding:2px 7px;border-radius:6px;font-size:13px;">!강화</code> 명령어 실행 후 <strong>⚡ 자동강화</strong> 버튼을 클릭하면 시작됩니다.</li>
       <li>1회 강화 비용 <span class="highlight">10P</span> (수동 5P의 <strong>2배</strong>) 소모</li>
       <li>보유 포인트를 전부 소진하거나 <span class="highlight">+20강</span>에 도달할 때까지 자동으로 반복 강화합니다.</li>
-      <li>수동 강화와 동일한 속도(3초 카운트)로 진행되며, 성공·실패 결과가 매 회 채널에 출력됩니다.</li>
-      <li><strong>+17강 이상</strong> 달성 시 채널 전체 공지 및 홍보 채널 알림도 동일하게 발송됩니다.</li>
+      <li>수동 강화보다 빠른 <span class="highlight">1초</span> 간격으로 진행되며, 성공·실패 결과가 매 회 채널에 출력됩니다.</li>
+      <li><strong>+20강</strong> 달성 시 채널 전체 공지 및 홍보 채널 알림이 발송됩니다.</li>
     </ul>
     <div class="notice notice-gold" style="margin-top:12px;margin-bottom:0">
       <span class="notice-icon">💡</span>
@@ -939,9 +928,17 @@
         0환: 베이스 전체 재랜덤 / 1환↑: <strong>S급 베이스 유지</strong> + 나머지 재랜덤</div>
       </div>
     </div>
+    <div class="item-row">
+      <div class="item-icon">🎯</div>
+      <div>
+        <div class="item-name">지정초기화구슬</div>
+        <div class="item-desc">원하는 펫 종류를 <strong>직접 지정</strong>하여 Lv.1로 재생성합니다.<br>
+        환수 보정 유지 / S급 베이스 유지 (1환↑) / 재추첨 없이 원하는 펫으로 교체 가능</div>
+      </div>
+    </div>
     <div class="notice notice-blue" style="margin-top:8px;margin-bottom:0">
       <span class="notice-icon">ℹ️</span>
-      <div>두 구슬 모두 <strong>환수 횟수는 초기화되지 않습니다.</strong> 5환이면 초기화 후에도 5환 보정이 유지됩니다.</div>
+      <div>세 구슬 모두 <strong>환수 횟수는 초기화되지 않습니다.</strong> 5환이면 초기화 후에도 5환 보정이 유지됩니다.</div>
     </div>
   </div>
 
@@ -1070,7 +1067,7 @@
 
   <div class="card">
     <div class="card-title">📈 펫 레벨별 경험치 테이블</div>
-    <p style="margin-bottom:14px;font-size:13px;color:var(--muted);">다음 레벨까지 필요 = 현재 레벨 + 1 &nbsp;|&nbsp; Lv.1→140 총 필요: <span class="highlight">10,010 EXP</span></p>
+    <p style="margin-bottom:14px;font-size:13px;color:var(--muted);">다음 레벨까지 필요 = 현재 레벨 + 1 &nbsp;|&nbsp; Lv.1→140 (만렙) 총 필요: <span class="highlight">9,869 EXP</span> &nbsp;|&nbsp; <span style="color:var(--muted);">Lv.140은 만렙이므로 경험치 불필요</span></p>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
       <div>
@@ -1100,7 +1097,7 @@
         </table>
       </div>
       <div>
-        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">중후반 Lv.25 ~ 140</div>
+        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">중후반 Lv.25 ~ 139</div>
         <table class="drop-table" style="font-size:12px;">
           <tr><th>레벨</th><th>1회 필요</th><th>누적</th></tr>
           <tr><td>Lv. 25</td><td>26</td><td>350</td></tr>
@@ -1117,7 +1114,8 @@
           <tr><td>Lv.110</td><td>111</td><td>6,215</td></tr>
           <tr><td>Lv.120</td><td>121</td><td>7,380</td></tr>
           <tr><td>Lv.130</td><td>131</td><td>8,645</td></tr>
-          <tr style="background:rgba(240,192,64,0.08);"><td><strong>Lv.140</strong></td><td><strong>141</strong></td><td><strong>10,010</strong></td></tr>
+          <tr style="background:rgba(240,192,64,0.08);"><td><strong>Lv.139</strong></td><td><strong>140</strong></td><td><strong>9,869</strong></td></tr>
+          <tr style="background:rgba(248,113,113,0.08);border-top:1px solid rgba(248,113,113,0.2);"><td colspan="3" style="text-align:center;color:#fca5a5;font-weight:700;letter-spacing:0.05em;">🏆 Lv.140 — 만렙 (경험치 불필요)</td></tr>
         </table>
       </div>
     </div>
@@ -1173,7 +1171,8 @@
   <div class="card">
     <div class="card-title">📈 펫 레벨업</div>
     <ul>
-      <li>최대 레벨은 <span class="highlight">Lv. 140</span></li>
+      <li>최대 레벨은 <span class="highlight">Lv. 140</span> (만렙)</li>
+      <li><strong>Lv.139까지</strong> 경험치를 획득하며 레벨이 오르고, Lv.140 도달 시 경험치 획득이 종료됩니다</li>
       <li>레벨이 높을수록 다음 레벨까지 필요한 경험치가 증가합니다</li>
       <li><strong>📜 펫 경험의 문서</strong> 아이템을 사용하면 경험치를 즉시 추가할 수 있습니다</li>
       <li>사냥 종료 시 레벨업 결과를 한 번에 확인할 수 있습니다</li>
@@ -1191,41 +1190,63 @@
   </div>
 
   <details>
-    <summary>💎 강화 포인트 아이템 <span class="summary-arrow">▶</span></summary>
+    <summary><span style="background:rgba(91,141,238,0.18);border-radius:6px;padding:2px 8px;margin-right:4px;font-size:12px;color:#93c5fd;">강화</span>💎 강화 포인트 아이템 <span class="summary-arrow">▶</span></summary>
     <div class="detail-body">
       <div class="item-row">
         <div class="item-icon">💎</div>
-        <div><div class="item-name">강화석</div><div class="item-desc">강화 포인트 +10 / 주로 하급 레이드·사냥 하급 상자에서 획득</div></div>
+        <div><div class="item-name">강화석 <span style="color:var(--muted);font-weight:400;font-size:12px;">+10P</span></div><div class="item-desc">주로 하급 레이드·사냥 하급 상자에서 획득</div></div>
       </div>
       <div class="item-row">
         <div class="item-icon">🌟</div>
-        <div><div class="item-name">정제된 강화석</div><div class="item-desc">강화 포인트 +40 / 중급 레이드·사냥 중급 상자에서 획득</div></div>
+        <div><div class="item-name">정제된 강화석 <span style="color:var(--muted);font-weight:400;font-size:12px;">+40P</span></div><div class="item-desc">중급 레이드·사냥 중급 상자에서 획득</div></div>
       </div>
       <div class="item-row">
         <div class="item-icon">🔮</div>
-        <div><div class="item-name">마력 결정체</div><div class="item-desc">강화 포인트 +60 / 상급 레이드·사냥 상급 상자에서 획득</div></div>
+        <div><div class="item-name">마력 결정체 <span style="color:var(--muted);font-weight:400;font-size:12px;">+60P</span></div><div class="item-desc">상급 레이드·사냥 상급 상자에서 획득</div></div>
       </div>
       <div class="item-row">
         <div class="item-icon">💠</div>
-        <div><div class="item-name">칠흑의 정수</div><div class="item-desc">강화 포인트 +100 / 칠흑·지옥 레이드에서 획득</div></div>
+        <div><div class="item-name">칠흑의 정수 <span style="color:var(--muted);font-weight:400;font-size:12px;">+100P</span></div><div class="item-desc">칠흑·지옥 레이드에서 획득</div></div>
       </div>
       <div class="item-row">
         <div class="item-icon">🌠</div>
-        <div><div class="item-name">지옥의 불꽃</div><div class="item-desc">강화 포인트 +150 / 지옥·이벤트 레이드에서 획득</div></div>
+        <div><div class="item-name">지옥의 불꽃 <span style="color:var(--muted);font-weight:400;font-size:12px;">+150P</span></div><div class="item-desc">지옥·이벤트 레이드에서 획득</div></div>
       </div>
     </div>
   </details>
 
   <details>
-    <summary>⚡ 강화권 <span class="summary-arrow">▶</span></summary>
+    <summary><span style="background:rgba(251,146,60,0.18);border-radius:6px;padding:2px 8px;margin-right:4px;font-size:12px;color:#fdba74;">강화</span>⚡ 강화권 <span class="summary-arrow">▶</span></summary>
     <div class="detail-body">
       <p style="margin-bottom:12px;color:var(--muted);font-size:13px;">강화권 사용 시 강화 포인트 5P를 소모하고 지정된 배율로 성공 확률을 높여 즉시 강화를 시도합니다.</p>
-      <div class="item-row"><div class="item-icon">⚡</div><div><div class="item-name">2배 강화권</div><div class="item-desc">현재 강화 확률 × 2배로 즉시 시도 (5P 소모)</div></div></div>
-      <div class="item-row"><div class="item-icon">⚡</div><div><div class="item-name">3배 강화권</div><div class="item-desc">현재 강화 확률 × 3배로 즉시 시도 (5P 소모)</div></div></div>
-      <div class="item-row"><div class="item-icon">⚡</div><div><div class="item-name">4배 강화권</div><div class="item-desc">현재 강화 확률 × 4배로 즉시 시도 (5P 소모)</div></div></div>
-      <div class="item-row"><div class="item-icon">⚡</div><div><div class="item-name">5배 강화권</div><div class="item-desc">현재 강화 확률 × 5배로 즉시 시도 (5P 소모)</div></div></div>
-      <div class="item-row"><div class="item-icon">⚡</div><div><div class="item-name">6배 강화권</div><div class="item-desc">현재 강화 확률 × 6배로 즉시 시도 (5P 소모) / 지옥 레이드 드롭</div></div></div>
-      <div class="notice notice-gold" style="margin-top:8px;margin-bottom:0">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px;">
+        <div style="background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.2);border-radius:10px;padding:10px;text-align:center;">
+          <div style="font-size:20px;">⚡</div>
+          <div style="font-weight:700;font-size:14px;margin:4px 0;color:#fdba74;">2배 강화권</div>
+          <div style="font-size:12px;color:var(--muted);">확률 × 2 · 5P 소모</div>
+        </div>
+        <div style="background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.2);border-radius:10px;padding:10px;text-align:center;">
+          <div style="font-size:20px;">⚡</div>
+          <div style="font-weight:700;font-size:14px;margin:4px 0;color:#fdba74;">3배 강화권</div>
+          <div style="font-size:12px;color:var(--muted);">확률 × 3 · 5P 소모</div>
+        </div>
+        <div style="background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.2);border-radius:10px;padding:10px;text-align:center;">
+          <div style="font-size:20px;">⚡</div>
+          <div style="font-weight:700;font-size:14px;margin:4px 0;color:#fdba74;">4배 강화권</div>
+          <div style="font-size:12px;color:var(--muted);">확률 × 4 · 5P 소모</div>
+        </div>
+        <div style="background:rgba(251,146,60,0.08);border:1px solid rgba(251,146,60,0.2);border-radius:10px;padding:10px;text-align:center;">
+          <div style="font-size:20px;">⚡</div>
+          <div style="font-weight:700;font-size:14px;margin:4px 0;color:#fdba74;">5배 강화권</div>
+          <div style="font-size:12px;color:var(--muted);">확률 × 5 · 5P 소모</div>
+        </div>
+        <div style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:10px;padding:10px;text-align:center;">
+          <div style="font-size:20px;">⚡</div>
+          <div style="font-weight:700;font-size:14px;margin:4px 0;color:#fca5a5;">6배 강화권</div>
+          <div style="font-size:12px;color:var(--muted);">확률 × 6 · 지옥 드롭</div>
+        </div>
+      </div>
+      <div class="notice notice-gold" style="margin-top:0;margin-bottom:0">
         <span class="notice-icon">💡</span>
         <div>고강화 구간(+15 이상)에서 강화권을 아껴뒀다 사용하는 것이 효율적입니다.</div>
       </div>
@@ -1233,19 +1254,53 @@
   </details>
 
   <details>
-    <summary>🎟️ 소환권 상자 / 🧿 스탯 포인트 상자 <span class="summary-arrow">▶</span></summary>
+    <summary><span style="background:rgba(52,211,153,0.15);border-radius:6px;padding:2px 8px;margin-right:4px;font-size:12px;color:#6ee7b7;">보스</span>🎟️ 소환권 상자 / 🧿 스탯 포인트 상자 <span class="summary-arrow">▶</span></summary>
     <div class="detail-body">
-      <div class="item-row"><div class="item-icon">🎟️</div><div><div class="item-name">소환권 상자 (+5 / +10 / +20)</div><div class="item-desc">보스 소환권 포인트를 직접 추가합니다. 인벤토리에서 사용하세요.</div></div></div>
-      <div class="item-row"><div class="item-icon">🧿</div><div><div class="item-name">스탯 포인트 상자 (+1 / +2 / +3)</div><div class="item-desc">스탯 투자에 쓸 수 있는 포인트를 추가합니다.</div></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">🎟️ 소환권 상자</div>
+          <div class="item-row" style="padding:6px 0;"><div class="item-icon" style="font-size:16px;">🎟️</div><div><div class="item-name" style="font-size:13px;">+5점</div><div class="item-desc">보스 소환권 포인트 +5</div></div></div>
+          <div class="item-row" style="padding:6px 0;"><div class="item-icon" style="font-size:16px;">🎟️</div><div><div class="item-name" style="font-size:13px;">+10점</div><div class="item-desc">보스 소환권 포인트 +10</div></div></div>
+          <div class="item-row" style="padding:6px 0;border-bottom:none;"><div class="item-icon" style="font-size:16px;">🎟️</div><div><div class="item-name" style="font-size:13px;">+20점</div><div class="item-desc">보스 소환권 포인트 +20</div></div></div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;">🧿 스탯 포인트 상자</div>
+          <div class="item-row" style="padding:6px 0;"><div class="item-icon" style="font-size:16px;">🧿</div><div><div class="item-name" style="font-size:13px;">+1점</div><div class="item-desc">스탯 포인트 +1</div></div></div>
+          <div class="item-row" style="padding:6px 0;"><div class="item-icon" style="font-size:16px;">🧿</div><div><div class="item-name" style="font-size:13px;">+2점</div><div class="item-desc">스탯 포인트 +2</div></div></div>
+          <div class="item-row" style="padding:6px 0;border-bottom:none;"><div class="item-icon" style="font-size:16px;">🧿</div><div><div class="item-name" style="font-size:13px;">+3점</div><div class="item-desc">스탯 포인트 +3</div></div></div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-top:8px;">인벤토리에서 사용하세요.</p>
     </div>
   </details>
 
   <details>
-    <summary>📜 펫 경험의 문서 <span class="summary-arrow">▶</span></summary>
+    <summary><span style="background:rgba(168,85,247,0.18);border-radius:6px;padding:2px 8px;margin-right:4px;font-size:12px;color:#d8b4fe;">펫</span>📜 펫 경험의 문서 <span class="summary-arrow">▶</span></summary>
     <div class="detail-body">
       <p style="margin-bottom:12px;color:var(--muted);font-size:13px;">인벤토리에서 사용하면 현재 펫의 경험치가 즉시 증가합니다.</p>
-      <div class="item-row"><div class="item-icon">📜</div><div><div class="item-name">펫 경험의 문서</div><div class="item-desc">+300 / +500 / +700 / +1000 / +2000 종류 있음</div></div></div>
-      <div class="notice notice-green" style="margin-top:8px;margin-bottom:0">
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px 14px;text-align:center;min-width:80px;">
+          <div style="font-size:18px;">📜</div>
+          <div style="font-weight:700;color:#a5d6ff;font-size:14px;">+300</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px 14px;text-align:center;min-width:80px;">
+          <div style="font-size:18px;">📜</div>
+          <div style="font-weight:700;color:#a5d6ff;font-size:14px;">+500</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px 14px;text-align:center;min-width:80px;">
+          <div style="font-size:18px;">📜</div>
+          <div style="font-weight:700;color:#a5d6ff;font-size:14px;">+700</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid rgba(168,85,247,0.3);border-radius:10px;padding:8px 14px;text-align:center;min-width:80px;">
+          <div style="font-size:18px;">📜</div>
+          <div style="font-weight:700;color:#d8b4fe;font-size:14px;">+1000</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid rgba(240,192,64,0.35);border-radius:10px;padding:8px 14px;text-align:center;min-width:80px;">
+          <div style="font-size:18px;">📜</div>
+          <div style="font-weight:700;color:#fcd34d;font-size:14px;">+2000</div>
+        </div>
+      </div>
+      <div class="notice notice-green" style="margin-top:0;margin-bottom:0">
         <span class="notice-icon">💡</span>
         <div>사냥 틱 경험치(10)보다 훨씬 효율적입니다. 레이드·사냥 상자 드롭으로 획득 가능합니다.</div>
       </div>
@@ -1253,7 +1308,7 @@
   </details>
 
   <details>
-    <summary>🔮 초기화 아이템 / 🌙 월경 크레딧 <span class="summary-arrow">▶</span></summary>
+    <summary><span style="background:rgba(168,85,247,0.18);border-radius:6px;padding:2px 8px;margin-right:4px;font-size:12px;color:#d8b4fe;">펫</span>🔮 초기화 아이템 / 🌙 월경 크레딧 <span class="summary-arrow">▶</span></summary>
     <div class="detail-body">
       <div class="item-row">
         <div class="item-icon">🔮</div>
@@ -1262,6 +1317,10 @@
       <div class="item-row">
         <div class="item-icon">💫</div>
         <div><div class="item-name">완전초기화구슬</div><div class="item-desc">펫을 완전히 재추첨하고 Lv.1로 초기화. S베이스 유지(1환↑). 환수 유지.</div></div>
+      </div>
+      <div class="item-row">
+        <div class="item-icon">🎯</div>
+        <div><div class="item-name">지정초기화구슬</div><div class="item-desc">원하는 펫 종류를 직접 지정하여 Lv.1로 재생성. S베이스 유지(1환↑). 환수 유지.</div></div>
       </div>
       <div class="item-row">
         <div class="item-icon">🌙</div>
