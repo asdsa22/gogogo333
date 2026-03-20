@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐾 펫 도감</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Black+Han+Sans&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0e1a;--bg2:#12132a;--bg3:#1a1b35;--border:rgba(255,255,255,0.07);--gold:#f0c040;--blue:#5b8dee;--purple:#a855f7;--green:#34d399;--red:#f87171;--orange:#fb923c;--text:#e2e4f0;--muted:#7b7fa0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;line-height:1.6;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 10% 20%,rgba(91,141,238,0.06) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 90% 80%,rgba(168,85,247,0.06) 0%,transparent 60%);pointer-events:none;z-index:0}
+.container{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:32px 20px 80px}
+.hero{text-align:center;margin-bottom:28px}
+.hero h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(28px,6vw,48px);background:linear-gradient(135deg,#a855f7,#5b8dee,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--muted);font-size:14px;margin-top:8px}
+.back-link{display:inline-flex;align-items:center;gap:6px;color:var(--blue);text-decoration:none;font-size:13px;margin-bottom:20px;padding:6px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;transition:border-color .15s}
+.back-link:hover{border-color:rgba(91,141,238,0.4)}
+.info-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px}
+.info-card h3{font-family:'Black Han Sans',sans-serif;font-size:18px;font-weight:400;margin-bottom:12px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.info-grid{grid-template-columns:1fr}}
+.info-item{display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--bg3);border-radius:10px;border:1px solid var(--border)}
+.info-item .ii-icon{font-size:20px;flex-shrink:0}
+.info-item .ii-name{font-weight:600;font-size:13px}
+.info-item .ii-desc{color:var(--muted);font-size:12px;margin-top:2px}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:13px}
+.legend-item{display:flex;align-items:center;gap:6px;padding:6px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px}
+.stats-bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
+.stat-chip{padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600;border:1px solid}
+.chip-skill{background:rgba(240,192,64,0.15);border-color:rgba(240,192,64,0.3);color:#fcd34d}
+.chip-normal{background:rgba(156,163,175,0.15);border-color:rgba(156,163,175,0.3);color:#d1d5db}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;padding:12px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:14px}
+.search-box{flex:1;min-width:160px;padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:13px;outline:none}
+.search-box:focus{border-color:rgba(91,141,238,0.5)}
+.search-box::placeholder{color:var(--muted)}
+.filter-btn{padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;cursor:pointer;transition:all .15s}
+.filter-btn:hover{border-color:rgba(255,255,255,0.2)}
+.filter-btn.active{background:rgba(91,141,238,0.2);border-color:rgba(91,141,238,0.4);color:#93c5fd}
+.sort-select{padding:5px 8px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;cursor:pointer}
+.result-count{color:var(--muted);font-size:11px;margin-left:auto;white-space:nowrap}
+.pet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+@media(max-width:500px){.pet-grid{grid-template-columns:1fr 1fr;gap:8px}}
+.pet-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;transition:border-color .2s,transform .15s,box-shadow .2s;position:relative;overflow:hidden}
+.pet-card:hover{border-color:rgba(255,255,255,0.15);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.3)}
+.pet-card.has-skill{border-color:rgba(240,192,64,0.2)}
+.pet-card.pending{opacity:0.55;border-color:rgba(255,255,255,0.05)}
+.pending-badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(123,127,160,0.2);color:var(--muted);border:1px solid rgba(123,127,160,0.3);margin-bottom:6px}
+.pending-body{text-align:center;color:var(--muted);font-size:12px;padding:8px 0}
+.pet-gif{width:64px;height:64px;object-fit:contain;image-rendering:pixelated;display:block;margin:0 auto 8px}
+.pet-gif-wrap{text-align:center;margin-bottom:6px;min-height:64px;display:flex;align-items:center;justify-content:center}
+.pet-name{font-weight:700;font-size:14px;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.pet-skill{display:inline-block;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:600;margin-bottom:6px}
+.skill-aa{background:rgba(248,113,113,0.2);color:#fca5a5;border:1px solid rgba(248,113,113,0.3)}
+.skill-bb{background:rgba(251,146,60,0.2);color:#fdba74;border:1px solid rgba(251,146,60,0.3)}
+.skill-cc{background:rgba(168,85,247,0.2);color:#d8b4fe;border:1px solid rgba(168,85,247,0.3)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px 10px;font-size:11px}
+.stat-row{display:flex;justify-content:space-between}
+.stat-label{color:var(--muted)}
+.stat-val{font-weight:600}
+.gain-section{margin-top:6px;padding-top:6px;border-top:1px solid var(--border)}
+.gain-section .stat-val{color:#6ee7b7}
+.total-gain{margin-top:4px;text-align:right;font-size:10px;color:var(--muted)}
+.total-gain strong{color:var(--gold)}
+.loading{text-align:center;padding:60px 20px;color:var(--muted)}
+.loading .spinner{width:40px;height:40px;margin:0 auto 16px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-msg{color:var(--red);text-align:center;padding:40px}
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="index.html" class="back-link">← 게임 설명서로 돌아가기</a>
+  <div class="hero"><h1>🐾 펫 도감</h1><p>전체 펫 데이터 · 특수기술 보유 펫 표시</p></div>
+
+  <div class="info-card">
+    <h3>⚔️ 펫 스탯별 레이드 역할</h3>
+    <div class="info-grid">
+      <div class="info-item"><div class="ii-icon">❤️</div><div><div class="ii-name">내구력 → 크리 확률</div><div class="ii-desc">체력이 높을수록 크리티컬 발동 확률 증가</div></div></div>
+      <div class="info-item"><div class="ii-icon">⚔️</div><div><div class="ii-name">공격력 → 기본 데미지</div><div class="ii-desc">가장 직접적으로 딜에 기여하는 스탯</div></div></div>
+      <div class="info-item"><div class="ii-icon">🛡️</div><div><div class="ii-name">방어력 → 크리 데미지</div><div class="ii-desc">크리 터졌을 때 배율이 올라감</div></div></div>
+      <div class="info-item"><div class="ii-icon">⚡</div><div><div class="ii-name">순발력 → 적중률</div><div class="ii-desc">빗나가면 0데미지, 꾸준한 딜의 핵심</div></div></div>
+    </div>
+    <div style="margin-top:12px;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--muted);">
+      💡 S급 기준치를 초과한 스탯은 초과분만큼 <strong style="color:var(--gold);">추가 데미지 보너스 %</strong>가 붙습니다.
+    </div>
+  </div>
+
+  <div class="info-card">
+    <h3>🌟 펫 특수기술</h3>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:10px;">성장률이 낮은 펫은 레이드에서 특수기술로 기여합니다. 레이드당 1회 사용.</p>
+    <div class="legend" style="margin-bottom:0;">
+      <div class="legend-item"><span class="pet-skill skill-aa">🔥 버프</span> 전체 펫 딜 50%↑ 2분</div>
+      <div class="legend-item"><span class="pet-skill skill-bb">⏰ 서포터</span> 보스 시간 20% 연장</div>
+      <div class="legend-item"><span class="pet-skill skill-cc">💀 딜러</span> 보스 HP 10% 감소</div>
+    </div>
+  </div>
+
+  <div class="stats-bar" id="statsBar"></div>
+  <div class="controls">
+    <input type="text" class="search-box" id="search" placeholder="🔍 펫 이름 검색...">
+    <button class="filter-btn active" data-filter="all">전체</button>
+    <button class="filter-btn" data-filter="skill">⭐ 특수기술</button>
+    <button class="filter-btn" data-filter="AA">🔥</button>
+    <button class="filter-btn" data-filter="BB">⏰</button>
+    <button class="filter-btn" data-filter="CC">💀</button>
+    <button class="filter-btn" data-filter="normal">일반</button>
+    <button class="filter-btn" data-filter="pending">🔧 준비중</button>
+    <select class="sort-select" id="sortSelect">
+      <option value="gain_desc">성장률 높은순</option>
+      <option value="gain_asc">성장률 낮은순</option>
+      <option value="name">이름순</option>
+      <option value="hp">체력순</option>
+      <option value="atk">공격력순</option>
+    </select>
+    <span class="result-count" id="resultCount"></span>
+  </div>
+  <div id="petGrid" class="pet-grid"><div class="loading"><div class="spinner"></div><p>펫 데이터 로딩 중...</p></div></div>
+  <div style="text-align:center;margin-top:40px;color:var(--muted);font-size:12px;" id="footer"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const SK={AA:{label:"🔥 버프",cls:"skill-aa"},BB:{label:"⏰ 서포터",cls:"skill-bb"},CC:{label:"💀 딜러",cls:"skill-cc"}};
+let PETS=[],cFilter='all',cSort='gain_desc';
+function card(p){
+  const s=p.skill?SK[p.skill]:null;
+  const gifImg=`<div class="pet-gif-wrap"><img class="pet-gif" src="pets/${p.gif}" alt="${p.name}" onerror="this.style.display='none'"></div>`;
+  const nameEl=`<div class="pet-name">${p.name}</div>`;
+  if(p.pending){
+    return`<div class="pet-card pending">${gifImg}${nameEl}<div style="text-align:center"><span class="pending-badge">🔧 준비중</span></div><div class="pending-body">데이터 준비중입니다</div></div>`;
+  }
+  return`<div class="pet-card${s?' has-skill':''}">${gifImg}${nameEl}${s?`<span class="pet-skill ${s.cls}">${s.label}</span>`:''}<div class="stat-grid"><div class="stat-row"><span class="stat-label">❤️ 체력</span><span class="stat-val">${p.hp}</span></div><div class="stat-row"><span class="stat-label">⚔️ 공격</span><span class="stat-val">${p.atk}</span></div><div class="stat-row"><span class="stat-label">🛡️ 방어</span><span class="stat-val">${p.def}</span></div><div class="stat-row"><span class="stat-label">⚡ 순발</span><span class="stat-val">${p.agi}</span></div></div><div class="gain-section"><div class="stat-grid"><div class="stat-row"><span class="stat-label">❤️성장</span><span class="stat-val">${p.hp_gain}</span></div><div class="stat-row"><span class="stat-label">⚔️성장</span><span class="stat-val">${p.atk_gain}</span></div><div class="stat-row"><span class="stat-label">🛡️성장</span><span class="stat-val">${p.def_gain}</span></div><div class="stat-row"><span class="stat-label">⚡성장</span><span class="stat-val">${p.agi_gain}</span></div></div><div class="total-gain">성장률: <strong>${p.total_gain}</strong></div></div></div>`;
+}
+function render(){const q=document.getElementById('search').value.trim().toLowerCase();let l=PETS.filter(p=>{if(q&&!p.name.toLowerCase().includes(q))return!1;if(cFilter==='pending')return p.pending;if(cFilter==='skill')return!p.pending&&!!p.skill;if(cFilter==='normal')return!p.pending&&!p.skill;if(cFilter==='AA'||cFilter==='BB'||cFilter==='CC')return p.skill===cFilter;return!0});const sm={gain_desc:(a,b)=>b.total_gain-a.total_gain,gain_asc:(a,b)=>a.total_gain-b.total_gain,name:(a,b)=>a.name.localeCompare(b.name,'ko'),hp:(a,b)=>b.hp-a.hp,atk:(a,b)=>b.atk-a.atk};l.sort(sm[cSort]||sm.gain_desc);document.getElementById('petGrid').innerHTML=l.map(card).join('');document.getElementById('resultCount').textContent=l.length+'/'+PETS.length+'종'}
+function stats(){const sk=PETS.filter(p=>p.skill).length,aa=PETS.filter(p=>p.skill==='AA').length,bb=PETS.filter(p=>p.skill==='BB').length,cc=PETS.filter(p=>p.skill==='CC').length,pend=PETS.filter(p=>p.pending).length;document.getElementById('statsBar').innerHTML=`<span class="stat-chip chip-normal">전체 ${PETS.length}종</span><span class="stat-chip chip-skill">⭐ 특수기술 ${sk}종</span><span class="stat-chip" style="background:rgba(248,113,113,0.12);border-color:rgba(248,113,113,0.25);color:#fca5a5">🔥${aa}</span><span class="stat-chip" style="background:rgba(251,146,60,0.12);border-color:rgba(251,146,60,0.25);color:#fdba74">⏰${bb}</span><span class="stat-chip" style="background:rgba(168,85,247,0.12);border-color:rgba(168,85,247,0.25);color:#d8b4fe">💀${cc}</span>${pend?`<span class="stat-chip" style="background:rgba(123,127,160,0.12);border-color:rgba(123,127,160,0.25);color:var(--muted)">🔧 준비중 ${pend}</span>`:''}`;document.getElementById('footer').innerHTML=`<p>총 <strong style="color:var(--text)">${PETS.length}</strong>종 · 특수기술 <strong style="color:var(--gold)">${sk}</strong>종${pend?` · 준비중 <strong style="color:var(--muted)">${pend}</strong>종`:''}</p>`}
+document.querySelectorAll('.filter-btn').forEach(b=>{b.addEventListener('click',()=>{document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');cFilter=b.dataset.filter;render()})});
+document.getElementById('sortSelect').addEventListener('change',e=>{cSort=e.target.value;render()});
+document.getElementById('search').addEventListener('input',render);
+fetch('pet_stats.xlsx')
+  .then(r=>{if(!r.ok)throw new Error(r.status);return r.arrayBuffer()})
+  .then(buf=>{
+    const wb=XLSX.read(buf,{type:'array'});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{header:1});
+    PETS=[];
+    for(let i=1;i<rows.length;i++){
+      const r=rows[i];
+      if(!r[0])continue;
+      const gifName=String(r[0]);
+      const name=gifName.replace(/\.gif$/i,'');
+      const vals=[r[1],r[2],r[3],r[4],r[5],r[6],r[7],r[8]];
+      const pending=vals.some(v=>v===undefined||v===null||v==='');
+      const skillRaw=r[10]?String(r[10]).trim().toUpperCase():null;
+      const skill=skillRaw&&['AA','BB','CC'].includes(skillRaw)?skillRaw:null;
+      PETS.push({name,gif:gifName,pending,
+        hp:parseFloat(r[1])||0,atk:parseFloat(r[2])||0,def:parseFloat(r[3])||0,agi:parseFloat(r[4])||0,
+        hp_gain:parseFloat(r[5])||0,atk_gain:parseFloat(r[6])||0,
+        def_gain:parseFloat(r[7])||0,agi_gain:parseFloat(r[8])||0,
+        atk_mul:parseFloat(r[9])||1,skill,total_gain:parseFloat(r[11])||0});
+    }
+    stats();render();
+  })
+  .catch(e=>{document.getElementById('petGrid').innerHTML=`<div class="error-msg">❌ pet_stats.xlsx 로드 실패<br><span style="font-size:12px;color:var(--muted)">같은 폴더에 pet_stats.xlsx가 있는지 확인 (${e.message})</span></div>`});
+</script>
+</body>
+</html>
