@@ -128,7 +128,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 const SK={AA:{label:"🔥 버프",cls:"skill-aa"},BB:{label:"⏰ 서포터",cls:"skill-bb"},CC:{label:"💀 딜러",cls:"skill-cc"}};
 let PETS=[],cFilter='all',cSort='gain_desc';
 function card(p){
-  const s=p.skill?SK[p.skill]:null;
+  const s=p.skillObj||null;
   const gifImg=`<div class="pet-gif-wrap"><img class="pet-gif" src="pets/${p.gif}" alt="${p.name}" onerror="this.style.display='none'"></div>`;
   const nameEl=`<div class="pet-name">${p.name}</div>`;
   if(p.pending){
@@ -155,15 +155,16 @@ fetch('pet_stats.xlsx')
       const name=gifName.replace(/\.gif$/i,'');
       const vals=[r[1],r[2],r[3],r[4],r[5],r[6],r[7],r[8]];
       const pending=vals.some(v=>v===undefined||v===null||v==='');
-      const skillRaw=r[10]?String(r[10]).trim().toUpperCase():null;
-      const skill=skillRaw&&['AA','BB','CC'].includes(skillRaw)?skillRaw:null;
+      const skillRaw=r[10]?String(r[10]).trim():null;
+      const skillParsed=(function(s){if(!s)return null;const m=s.match(/^(AAA|AA|BB|CC)(\d+)?$/i);if(!m)return null;const prefix=m[1].toUpperCase();const num=m[2]?parseInt(m[2]):null;if(prefix==='AAA')return{type:'AAA',label:'⚡ 캐릭버프'+(num!=null?num+'%':''),cls:'skill-aa'};if(prefix==='AA')return{type:'AA',label:'🔥 펫버프'+(num!=null?num+'%':''),cls:'skill-aa'};if(prefix==='BB')return{type:'BB',label:num!=null?'⏰ 서포터2%~'+num+'%':'⏰ 서포터',cls:'skill-bb'};if(prefix==='CC')return{type:'CC',label:num!=null?'💀 딜러(배진'+num+')':'💀 딜러',cls:'skill-cc'};return null;})(skillRaw);
+      const skill=skillParsed?skillParsed.type:null;
       const hp_gain=parseFloat(r[5])||0,atk_gain=parseFloat(r[6])||0,
         def_gain=parseFloat(r[7])||0,agi_gain=parseFloat(r[8])||0;
       const total_gain=Math.round((atk_gain+def_gain+agi_gain)*1000)/1000;
       PETS.push({name,gif:gifName,pending,
         hp:parseFloat(r[1])||0,atk:parseFloat(r[2])||0,def:parseFloat(r[3])||0,agi:parseFloat(r[4])||0,
         hp_gain,atk_gain,def_gain,agi_gain,
-        atk_mul:parseFloat(r[9])||1,skill,total_gain});
+        atk_mul:parseFloat(r[9])||1,skill,skillObj:skillParsed,total_gain});
     }
     stats();render();
   })
