@@ -138,7 +138,41 @@
   }
   .reload-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
 
-  /* tab nav */
+  /* main tab nav (레이드/아이템) */
+  .main-tab-nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+  .main-tab-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .main-tab-btn:hover { background: var(--bg3); color: var(--text); }
+  .main-tab-btn.active { background: linear-gradient(135deg, rgba(91,141,238,0.2), rgba(168,85,247,0.2)); color: var(--text); border-color: rgba(255,255,255,0.15); }
+
+  /* main sections */
+  .main-section { display: none; }
+  .main-section.active { display: block; }
+
+  /* tab nav (레이드별) */
   .tab-nav {
     display: flex;
     gap: 8px;
@@ -323,12 +357,60 @@
   .drop-pct-fill { height: 100%; border-radius: 999px; }
   .drop-pct-text { font-size: 13px; font-weight: 800; }
 
+  /* ====================== */
+  /* 아이템 목록 스타일 */
+  /* ====================== */
+  .item-list-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, rgba(91,141,238,0.1), rgba(168,85,247,0.1));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+  .item-list-header .icon { font-size: 40px; }
+  .item-list-header h2 {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 28px;
+    font-weight: 400;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .item-list-header p { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+  .item-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+  }
+  .item-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    transition: all 0.2s;
+  }
+  .item-card:hover { border-color: rgba(255,255,255,0.15); background: var(--bg3); }
+  .item-card .item-icon { font-size: 28px; flex-shrink: 0; }
+  .item-card .item-info { flex: 1; min-width: 0; }
+  .item-card .item-name { font-weight: 700; font-size: 14px; color: var(--text); margin-bottom: 2px; }
+  .item-card .item-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
   @media (max-width: 600px) {
     .stat-grid { grid-template-columns: repeat(2, 1fr); }
     .raid-header { flex-direction: column; gap: 12px; }
     .raid-big-emoji { font-size: 40px; }
     .raid-name { font-size: 28px; }
     .drop-pct-bar { width: 52px; }
+    .item-grid { grid-template-columns: 1fr; }
+    .main-tab-btn { font-size: 13px; padding: 10px 12px; }
   }
 </style>
 </head>
@@ -337,7 +419,7 @@
 
   <div id="loading">
     <div class="spinner"></div>
-    <div class="loading-text">raid_config.xlsx 읽는 중…</div>
+    <div class="loading-text">엑셀 파일 읽는 중…</div>
   </div>
 
   <div id="error-box">
@@ -345,7 +427,7 @@
     <h3>파일을 불러올 수 없습니다</h3>
     <p>
       이 HTML 파일과 <strong>같은 폴더</strong>에<br>
-      <code>raid_config.xlsx</code> 파일이 있는지 확인하세요.<br>
+      <code>raid_config.xlsx</code>와 <code>items.xlsx</code> 파일이 있는지 확인하세요.<br>
       로컬에서 열 경우 로컬 서버(Live Server 등)가 필요합니다.<br>
       <span id="error-detail"></span>
     </p>
@@ -360,48 +442,59 @@
       <button class="reload-btn" onclick="loadData()">🔄 엑셀 다시 읽기</button>
     </div>
 
-    <div class="tab-nav" id="tabNav"></div>
-    <div id="raidContent"></div>
+    <!-- 메인 탭 (레이드 / 아이템) -->
+    <div class="main-tab-nav">
+      <button class="main-tab-btn active" onclick="switchMainTab('raid')">
+        <span>⚔️</span> 레이드 정보
+      </button>
+      <button class="main-tab-btn" onclick="switchMainTab('items')">
+        <span>📦</span> 아이템 목록
+      </button>
+    </div>
+
+    <!-- 레이드 섹션 -->
+    <div class="main-section active" id="section-raid">
+      <div class="tab-nav" id="tabNav"></div>
+      <div id="raidContent"></div>
+    </div>
+
+    <!-- 아이템 섹션 -->
+    <div class="main-section" id="section-items">
+      <div class="item-list-header">
+        <div class="icon">📦</div>
+        <div>
+          <h2>아이템 목록</h2>
+          <p>게임에서 획득 가능한 모든 아이템 (items.xlsx 기준)</p>
+        </div>
+      </div>
+      <div class="item-grid" id="itemGrid"></div>
+    </div>
+
   </div>
 
 </div>
 <script>
 // ════════════════════════════════════
-// 패턴 정의 (8번 이후도 자동 인식)
+// 패턴 정의 (DATA 시트에서 동적으로 로드)
 // ════════════════════════════════════
-const PATTERNS = {
-  1: { name: '암산',         icon: '🔢', desc: '계산 문제 정답 입력 → 딜 2배 1분',          color: '#5b8dee' },
-  2: { name: '이모지',       icon: '😀', desc: '이모지 9개 중 정확한 이모지 선택',            color: '#34d399' },
-  3: { name: '타자검정',     icon: '⌨️', desc: '제시된 문구 정확히 입력',                     color: '#f0c040' },
-  4: { name: '색깔 4연속',   icon: '🎨', desc: '지정 유저가 색깔 4연속 맞추기',               color: '#fb923c' },
-  5: { name: '색깔 6연속',   icon: '🎨', desc: '지정 유저가 색깔 6연속 맞추기',               color: '#f87171' },
-  6: { name: '캐릭버프전용', icon: '⚔️', desc: '캐릭터 버프가 있어야 데미지 입힘 (2분)',      color: '#a855f7' },
-  7: { name: '펫버프전용',   icon: '🐾', desc: '펫 버프가 있어야 펫 데미지 입힘 (2분)',       color: '#ec4899' },
-};
+let PATTERNS = {};
 
 // ════════════════════════════════════
-// 아이템 설명 (baseName 기준)
+// 아이템 정보 (items.xlsx에서 동적으로 로드)
 // ════════════════════════════════════
-const ITEM_INFO = {
-  '강화석':           { icon: '💎', desc: '무기 강화에 사용. 강화 포인트 +10P',              tag: 'enha',   label: '강화' },
-  '정제된강화석':     { icon: '💎', desc: '강화석의 상위 버전. 강화 포인트 +40P',            tag: 'enha',   label: '강화' },
-  '마력결정체':       { icon: '🔷', desc: '마력이 응집된 결정체. 강화 포인트 +60P',          tag: 'enha',   label: '강화' },
-  '칠흑의정수':       { icon: '🌑', desc: '칠흑 보스의 정수. 강화 포인트 +100P',             tag: 'enha',   label: '강화' },
-  '지옥의불꽃':       { icon: '🔥', desc: '지옥 보스의 불꽃. 강화 포인트 +150P',             tag: 'enha',   label: '강화' },
-  '불지옥의불꽃':     { icon: '🌋', desc: '불지옥 보스의 불꽃. 강화 포인트 +400P',           tag: 'enha',   label: '강화' },
-  '강화권':           { icon: '⚡', desc: '강화 배율을 높이는 권서. 수치만큼 배율 적용',      tag: 'enha',   label: '강화' },
-  '배진3강화제':      { icon: '✨', desc: '+15강 이상 강화 시 성공률 3배 상승',               tag: 'enha',   label: '강화' },
-  '소환권상자':       { icon: '🎟️', desc: '열면 보스 소환권 토큰 획득. 수치는 획득 수량',    tag: 'summon', label: '소환권' },
-  '스탯상자':         { icon: '📦', desc: '스탯 포인트가 들어있는 상자. 수치는 포인트 수',    tag: 'stat',   label: '스탯' },
-  '각성제':           { icon: '💉', desc: '일정 시간 동안 스탯을 대폭 강화',                  tag: 'stat',   label: '스탯' },
-  '월경크레딧':       { icon: '🌙', desc: '월경 시스템 활성화 크레딧. 경험치 2배 적용',       tag: 'etc',    label: '기타' },
-  '펫경문':           { icon: '📜', desc: '펫에게 먹이면 경험치 지급. 수치는 경험치 양',      tag: 'pet',    label: '펫' },
-  '초기화구슬':       { icon: '🔮', desc: '펫을 Lv.1로 초기화 + 베이스 스탯 재랜덤',          tag: 'pet',    label: '펫' },
-  '완전초기화구슬':   { icon: '💫', desc: '펫 종류를 무작위로 변경 (환수 보정 유지)',          tag: 'pet',    label: '펫' },
-  '지정초기화구슬':   { icon: '🎯', desc: '원하는 펫 종류를 직접 선택해 변경',                tag: 'pet',    label: '펫' },
-  '초기화꾸러미':     { icon: '🔮', desc: '초기화구슬 묶음 패키지',                           tag: 'pet',    label: '펫' },
-  '완전초기화꾸러미': { icon: '💫', desc: '완전초기화구슬 묶음 패키지',                       tag: 'pet',    label: '펫' },
-  '지정초기화꾸러미': { icon: '🎯', desc: '지정초기화구슬 묶음 패키지',                       tag: 'pet',    label: '펫' },
+let ITEM_DB = {};
+
+// 타입별 태그 매핑
+const TYPE_TAG_MAP = {
+  'enhance_points': { tag: 'enha', label: '강화' },
+  'enhance_x2':     { tag: 'enha', label: '강화' },
+  'raid_tokens':    { tag: 'summon', label: '소환권' },
+  'stat_points':    { tag: 'stat', label: '스탯' },
+  'pet_reset':      { tag: 'pet', label: '펫' },
+  'pet_full_reset': { tag: 'pet', label: '펫' },
+  'pet_select_reset': { tag: 'pet', label: '펫' },
+  'pet_egg':        { tag: 'pet', label: '펫' },
+  'pet_exp':        { tag: 'pet', label: '펫' },
 };
 const TAG_CLS = { enha: 'tag-enha', stat: 'tag-stat', pet: 'tag-pet', summon: 'tag-summon', etc: 'tag-etc' };
 
@@ -416,17 +509,42 @@ function parsePatList(str) {
   if (!str && str!==0) return [];
   return String(str).split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
 }
-function parseItemKey(k) {
-  const parts = String(k).split('_');
-  const last  = parts[parts.length-1];
-  if (parts.length>=2 && /^\d+$/.test(last))
-    return { base: parts.slice(0,-1).join(''), qty: parseInt(last) };
-  return { base: String(k), qty: null };
-}
+
 function getItem(key) {
-  const { base, qty } = parseItemKey(key);
-  const info = ITEM_INFO[base] || { icon: '📦', desc: '아이템', tag: 'etc', label: '기타' };
-  return { ...info, base, qty };
+  // ITEM_DB에서 먼저 찾기
+  if (ITEM_DB[key]) {
+    const item = ITEM_DB[key];
+    return {
+      icon: item.icon || '📦',
+      desc: item.desc || '아이템',
+      tag: item.tag || 'etc',
+      label: item.label || '기타',
+      base: item.baseName || key,
+      qty: item.qty || null
+    };
+  }
+  // 기본값
+  return { icon: '📦', desc: '아이템', tag: 'etc', label: '기타', base: key, qty: null };
+}
+
+// ════════════════════════════════════
+// 메인 탭 전환
+// ════════════════════════════════════
+function switchMainTab(tab) {
+  document.querySelectorAll('.main-section').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.main-tab-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('section-'+tab)?.classList.add('active');
+  document.querySelector(`.main-tab-btn[onclick*="${tab}"]`)?.classList.add('active');
+}
+
+// ════════════════════════════════════
+// 레이드 탭 전환
+// ════════════════════════════════════
+function switchTab(id) {
+  document.querySelectorAll('.raid-section').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('raid-'+id)?.classList.add('active');
+  document.getElementById('tab-'+id)?.classList.add('active');
 }
 
 // ════════════════════════════════════
@@ -552,19 +670,79 @@ function buildRaidHTML(raid) {
 }
 
 // ════════════════════════════════════
-// 탭 전환
+// 아이템 카드 생성
 // ════════════════════════════════════
-function switchTab(id) {
-  document.querySelectorAll('.raid-section').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
-  document.getElementById('raid-'+id)?.classList.add('active');
-  document.getElementById('tab-'+id)?.classList.add('active');
+function buildItemCard(item) {
+  return `<div class="item-card">
+    <div class="item-icon">${item.icon}</div>
+    <div class="item-info">
+      <div class="item-name">${item.displayName}</div>
+      <div class="item-desc">${item.desc}</div>
+    </div>
+  </div>`;
 }
 
 // ════════════════════════════════════
-// 엑셀 파싱
+// items.xlsx 파싱
 // ════════════════════════════════════
-function parseExcel(wb) {
+function parseItemsExcel(wb) {
+  const ws = wb.Sheets['아이템'];
+  if (!ws) return [];
+  
+  const rows = XLSX.utils.sheet_to_json(ws, { header:1, defval:null });
+  // 첫 행은 헤더 설명, 두 번째 행이 실제 헤더
+  // 0: 키, 1: 이모지+이름, 2: 타입, 3: 값, 4: 설명
+  
+  const items = [];
+  ITEM_DB = {}; // 초기화
+  
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r || !r[0] || r[0] === 'key') continue;
+    
+    const key = String(r[0]).trim();
+    const displayName = String(r[1] || '').trim();
+    const type = String(r[2] || '').trim();
+    const value = r[3];
+    const desc = String(r[4] || '').trim();
+    
+    // 이모지 추출 (displayName 앞부분)
+    const emojiMatch = displayName.match(/^(\p{Emoji})/u);
+    const icon = emojiMatch ? emojiMatch[1] : '📦';
+    const nameOnly = displayName.replace(/^\p{Emoji}\s*/u, '').trim();
+    
+    // 태그 매핑
+    const tagInfo = TYPE_TAG_MAP[type] || { tag: 'etc', label: '기타' };
+    
+    // 기본 이름 추출 (숫자 제거)
+    const baseName = key.replace(/_\d+$/, '');
+    const qtyMatch = key.match(/_(\d+)$/);
+    const qty = qtyMatch ? parseInt(qtyMatch[1]) : null;
+    
+    const itemData = {
+      key,
+      displayName: nameOnly || key,
+      icon,
+      type,
+      value,
+      desc,
+      tag: tagInfo.tag,
+      label: tagInfo.label,
+      baseName,
+      qty
+    };
+    
+    items.push(itemData);
+    ITEM_DB[key] = itemData;
+  }
+  
+  return items;
+}
+
+// ════════════════════════════════════
+// raid_config.xlsx 파싱
+// ════════════════════════════════════
+function parseRaidExcel(wb) {
   // 레이드설정
   const ws1    = wb.Sheets['레이드설정'];
   const rows1  = XLSX.utils.sheet_to_json(ws1, { header:1, defval:null });
@@ -574,6 +752,24 @@ function parseExcel(wb) {
   // DATA
   const ws2   = wb.Sheets['DATA'];
   const rows2 = XLSX.utils.sheet_to_json(ws2, { header:1, defval:null });
+
+  // 패턴 정의 로드
+  PATTERNS = {};
+  const patColors = ['#5b8dee','#34d399','#f0c040','#fb923c','#f87171','#a855f7','#ec4899','#06b6d4','#84cc16','#f43f5e','#8b5cf6','#14b8a6','#eab308'];
+  const patIcons = ['🔢','😀','⌨️','🎨','🎨','⚔️','🐾','⚡','💣','✊','🎰','🔄','🔤'];
+  
+  for (const r of rows2) {
+    const patKey = r[0];
+    if (patKey && !isNaN(patKey) && r[2]) {
+      const num = parseInt(patKey);
+      PATTERNS[num] = {
+        name: r[2].split('(')[0].trim().split('—')[0].trim(),
+        desc: r[2],
+        icon: patIcons[num-1] || '❓',
+        color: patColors[(num-1) % patColors.length]
+      };
+    }
+  }
 
   // 보상 테이블
   const rewards = {};
@@ -633,7 +829,7 @@ function parseExcel(wb) {
 // ════════════════════════════════════
 // 렌더링
 // ════════════════════════════════════
-function render(raids) {
+function renderRaids(raids) {
   const tabNav  = document.getElementById('tabNav');
   const content = document.getElementById('raidContent');
   tabNav.innerHTML = '';
@@ -649,6 +845,11 @@ function render(raids) {
     document.getElementById('raid-'+raids[0].id).classList.add('active');
 }
 
+function renderItems(items) {
+  const grid = document.getElementById('itemGrid');
+  grid.innerHTML = items.map(buildItemCard).join('');
+}
+
 // ════════════════════════════════════
 // 엑셀 로드 (fetch)
 // ════════════════════════════════════
@@ -656,13 +857,26 @@ async function loadData() {
   document.getElementById('loading').style.display = 'flex';
   document.getElementById('main-content').style.display = 'none';
   document.getElementById('error-box').style.display = 'none';
+  
   try {
-    const res = await fetch('raid_config.xlsx?v=' + Date.now());
-    if (!res.ok) throw new Error(`HTTP ${res.status} — 파일을 찾지 못했습니다`);
-    const buf  = await res.arrayBuffer();
-    const wb   = XLSX.read(new Uint8Array(buf), { type: 'array' });
-    const raids = parseExcel(wb);
-    render(raids);
+    // 1. items.xlsx 로드
+    const itemsRes = await fetch('items.xlsx?v=' + Date.now());
+    if (!itemsRes.ok) throw new Error(`items.xlsx: HTTP ${itemsRes.status}`);
+    const itemsBuf = await itemsRes.arrayBuffer();
+    const itemsWb = XLSX.read(new Uint8Array(itemsBuf), { type: 'array' });
+    const items = parseItemsExcel(itemsWb);
+    
+    // 2. raid_config.xlsx 로드
+    const raidRes = await fetch('raid_config.xlsx?v=' + Date.now());
+    if (!raidRes.ok) throw new Error(`raid_config.xlsx: HTTP ${raidRes.status}`);
+    const raidBuf = await raidRes.arrayBuffer();
+    const raidWb = XLSX.read(new Uint8Array(raidBuf), { type: 'array' });
+    const raids = parseRaidExcel(raidWb);
+    
+    // 3. 렌더링
+    renderRaids(raids);
+    renderItems(items);
+    
     document.getElementById('loading').style.display = 'none';
     document.getElementById('main-content').style.display = 'block';
   } catch(e) {
