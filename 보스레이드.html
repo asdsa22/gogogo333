@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐉 보스 레이드 정보</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Black+Han+Sans&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --bg: #0d0e1a;
+    --bg2: #12132a;
+    --bg3: #1a1b35;
+    --border: rgba(255,255,255,0.07);
+    --gold: #f0c040;
+    --blue: #5b8dee;
+    --purple: #a855f7;
+    --green: #34d399;
+    --red: #f87171;
+    --orange: #fb923c;
+    --text: #e2e4f0;
+    --muted: #7b7fa0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 10% 20%, rgba(91,141,238,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 90% 80%, rgba(168,85,247,0.06) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  /* loading */
+  #loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    gap: 20px;
+    color: var(--muted);
+  }
+  .spinner {
+    width: 48px; height: 48px;
+    border: 3px solid var(--bg3);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 14px; }
+
+  /* error */
+  #error-box {
+    display: none;
+    margin: 40px auto;
+    max-width: 520px;
+    background: rgba(248,113,113,0.1);
+    border: 1px solid rgba(248,113,113,0.3);
+    border-radius: 14px;
+    padding: 28px 24px;
+    text-align: center;
+  }
+  #error-box .e-icon { font-size: 36px; margin-bottom: 12px; }
+  #error-box h3 { color: var(--red); margin-bottom: 10px; font-size: 18px; }
+  #error-box p { font-size: 13px; color: var(--muted); line-height: 1.9; }
+  #error-box code {
+    background: var(--bg3);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--gold);
+  }
+  #error-detail { display: block; color: var(--red); font-size: 12px; margin-top: 8px; }
+
+  /* main */
+  #main-content { display: none; }
+
+  /* back link */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    margin-bottom: 32px;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--text); text-decoration: none; }
+
+  /* hero */
+  .hero { text-align: center; margin-bottom: 36px; }
+  .hero h1 {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: clamp(28px, 6vw, 52px);
+    font-weight: 400;
+    background: linear-gradient(135deg, #f87171 0%, #fb923c 50%, #f0c040 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .hero p { color: var(--muted); font-size: 13px; }
+  .reload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 7px 16px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .reload-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
+
+  /* tab nav */
+  .tab-nav {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+    padding: 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+  .tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { background: var(--bg3); color: var(--text); }
+  .tab-btn.active { background: var(--bg3); color: var(--text); border-color: rgba(255,255,255,0.15); }
+  .tab-emoji { font-size: 18px; }
+
+  /* raid sections */
+  .raid-section { display: none; }
+  .raid-section.active { display: block; }
+
+  /* raid header */
+  .raid-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 24px 28px;
+    border-radius: 16px;
+    border: 1px solid;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .raid-bg-layer { position: absolute; inset: 0; opacity: 0.07; }
+  .raid-big-emoji { font-size: 52px; line-height: 1; position: relative; z-index: 1; flex-shrink: 0; }
+  .raid-title-group { position: relative; z-index: 1; }
+  .raid-name { font-family: 'Black Han Sans', sans-serif; font-size: 36px; font-weight: 400; line-height: 1.1; }
+  .event-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-left: 10px;
+    vertical-align: middle;
+    background: rgba(255,111,0,0.25);
+    color: #ffb74d;
+    border: 1px solid rgba(255,111,0,0.4);
+  }
+  .raid-sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+  /* stat grid */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 6px; }
+  .stat-value { font-size: 20px; font-weight: 900; color: var(--gold); line-height: 1.1; }
+  .stat-unit { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* section label */
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+
+  /* phase */
+  .phase-flow { display: flex; flex-direction: column; gap: 10px; }
+  .phase-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .phase-badge {
+    font-size: 11px; font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .p1     { background: rgba(91,141,238,0.2);  color: #93c5fd; }
+  .p2     { background: rgba(168,85,247,0.2);  color: #d8b4fe; }
+  .pfin   { background: rgba(248,113,113,0.2); color: #fca5a5; }
+  .psingle{ background: rgba(52,211,153,0.2);  color: #6ee7b7; }
+
+  .phase-info { flex: 1; min-width: 0; }
+  .phase-stats { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; font-size: 13px; color: var(--muted); }
+  .phase-stats span { display: flex; align-items: center; gap: 4px; }
+  .phase-stats strong { color: var(--text); }
+  .phase-arrow { text-align: center; color: var(--muted); font-size: 18px; }
+  .no-pattern { font-size: 12px; color: var(--muted); font-style: italic; }
+
+  /* pattern chips */
+  .pattern-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pattern-chip {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 12px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 12px;
+  }
+  .pattern-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .p-icon { font-size: 16px; }
+  .p-name { font-weight: 700; color: var(--text); }
+  .p-desc { font-size: 11px; color: var(--muted); }
+
+  /* drop items */
+  .drop-list { display: flex; flex-direction: column; gap: 8px; }
+  .drop-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .drop-item-icon { font-size: 22px; flex-shrink: 0; }
+  .drop-left { flex: 1; min-width: 0; }
+  .drop-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 3px; }
+  .drop-name { font-weight: 700; font-size: 14px; }
+  .drop-qty-tag {
+    font-size: 11px; padding: 1px 7px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .item-type-tag {
+    font-size: 10px; padding: 1px 7px;
+    border-radius: 4px; font-weight: 700;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .tag-pet    { background: rgba(168,85,247,0.2); color: #d8b4fe; }
+  .tag-enha   { background: rgba(91,141,238,0.2); color: #93c5fd; }
+  .tag-stat   { background: rgba(52,211,153,0.2); color: #6ee7b7; }
+  .tag-summon { background: rgba(240,192,64,0.2); color: #fcd34d; }
+  .tag-etc    { background: rgba(251,146,60,0.2); color: #fdba74; }
+  .drop-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+  .drop-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+  .drop-pct-bar {
+    width: 72px; height: 5px;
+    background: var(--bg3);
+    border-radius: 999px; overflow: hidden;
+  }
+  .drop-pct-fill { height: 100%; border-radius: 999px; }
+  .drop-pct-text { font-size: 13px; font-weight: 800; }
+
+  @media (max-width: 600px) {
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .raid-header { flex-direction: column; gap: 12px; }
+    .raid-big-emoji { font-size: 40px; }
+    .raid-name { font-size: 28px; }
+    .drop-pct-bar { width: 52px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">raid_config.xlsx 읽는 중…</div>
+  </div>
+
+  <div id="error-box">
+    <div class="e-icon">⚠️</div>
+    <h3>파일을 불러올 수 없습니다</h3>
+    <p>
+      이 HTML 파일과 <strong>같은 폴더</strong>에<br>
+      <code>raid_config.xlsx</code> 파일이 있는지 확인하세요.<br>
+      로컬에서 열 경우 로컬 서버(Live Server 등)가 필요합니다.<br>
+      <span id="error-detail"></span>
+    </p>
+  </div>
+
+  <div id="main-content">
+    <a href="index.html" class="back-link">← 게임 설명서로 돌아가기</a>
+
+    <div class="hero">
+      <h1>🐉 보스 레이드 정보</h1>
+      <p>각 보스의 입장권 · 페이즈 · 패턴 · 드랍 아이템을 확인하세요</p>
+      <button class="reload-btn" onclick="loadData()">🔄 엑셀 다시 읽기</button>
+    </div>
+
+    <div class="tab-nav" id="tabNav"></div>
+    <div id="raidContent"></div>
+  </div>
+
+</div>
+<script>
+// ════════════════════════════════════
+// 패턴 정의 (8번 이후도 자동 인식)
+// ════════════════════════════════════
+const PATTERNS = {
+  1: { name: '암산',         icon: '🔢', desc: '계산 문제 정답 입력 → 딜 2배 1분',          color: '#5b8dee' },
+  2: { name: '이모지',       icon: '😀', desc: '이모지 9개 중 정확한 이모지 선택',            color: '#34d399' },
+  3: { name: '타자검정',     icon: '⌨️', desc: '제시된 문구 정확히 입력',                     color: '#f0c040' },
+  4: { name: '색깔 4연속',   icon: '🎨', desc: '지정 유저가 색깔 4연속 맞추기',               color: '#fb923c' },
+  5: { name: '색깔 6연속',   icon: '🎨', desc: '지정 유저가 색깔 6연속 맞추기',               color: '#f87171' },
+  6: { name: '캐릭버프전용', icon: '⚔️', desc: '캐릭터 버프가 있어야 데미지 입힘 (2분)',      color: '#a855f7' },
+  7: { name: '펫버프전용',   icon: '🐾', desc: '펫 버프가 있어야 펫 데미지 입힘 (2분)',       color: '#ec4899' },
+};
+
+// ════════════════════════════════════
+// 아이템 설명 (baseName 기준)
+// ════════════════════════════════════
+const ITEM_INFO = {
+  '강화석':           { icon: '💎', desc: '무기 강화에 사용. 강화 포인트 +10P',              tag: 'enha',   label: '강화' },
+  '정제된강화석':     { icon: '💎', desc: '강화석의 상위 버전. 강화 포인트 +40P',            tag: 'enha',   label: '강화' },
+  '마력결정체':       { icon: '🔷', desc: '마력이 응집된 결정체. 강화 포인트 +60P',          tag: 'enha',   label: '강화' },
+  '칠흑의정수':       { icon: '🌑', desc: '칠흑 보스의 정수. 강화 포인트 +100P',             tag: 'enha',   label: '강화' },
+  '지옥의불꽃':       { icon: '🔥', desc: '지옥 보스의 불꽃. 강화 포인트 +150P',             tag: 'enha',   label: '강화' },
+  '불지옥의불꽃':     { icon: '🌋', desc: '불지옥 보스의 불꽃. 강화 포인트 +400P',           tag: 'enha',   label: '강화' },
+  '강화권':           { icon: '⚡', desc: '강화 배율을 높이는 권서. 수치만큼 배율 적용',      tag: 'enha',   label: '강화' },
+  '배진3강화제':      { icon: '✨', desc: '+15강 이상 강화 시 성공률 3배 상승',               tag: 'enha',   label: '강화' },
+  '소환권상자':       { icon: '🎟️', desc: '열면 보스 소환권 토큰 획득. 수치는 획득 수량',    tag: 'summon', label: '소환권' },
+  '스탯상자':         { icon: '📦', desc: '스탯 포인트가 들어있는 상자. 수치는 포인트 수',    tag: 'stat',   label: '스탯' },
+  '각성제':           { icon: '💉', desc: '일정 시간 동안 스탯을 대폭 강화',                  tag: 'stat',   label: '스탯' },
+  '월경크레딧':       { icon: '🌙', desc: '월경 시스템 활성화 크레딧. 경험치 2배 적용',       tag: 'etc',    label: '기타' },
+  '펫경문':           { icon: '📜', desc: '펫에게 먹이면 경험치 지급. 수치는 경험치 양',      tag: 'pet',    label: '펫' },
+  '초기화구슬':       { icon: '🔮', desc: '펫을 Lv.1로 초기화 + 베이스 스탯 재랜덤',          tag: 'pet',    label: '펫' },
+  '완전초기화구슬':   { icon: '💫', desc: '펫 종류를 무작위로 변경 (환수 보정 유지)',          tag: 'pet',    label: '펫' },
+  '지정초기화구슬':   { icon: '🎯', desc: '원하는 펫 종류를 직접 선택해 변경',                tag: 'pet',    label: '펫' },
+  '초기화꾸러미':     { icon: '🔮', desc: '초기화구슬 묶음 패키지',                           tag: 'pet',    label: '펫' },
+  '완전초기화꾸러미': { icon: '💫', desc: '완전초기화구슬 묶음 패키지',                       tag: 'pet',    label: '펫' },
+  '지정초기화꾸러미': { icon: '🎯', desc: '지정초기화구슬 묶음 패키지',                       tag: 'pet',    label: '펫' },
+};
+const TAG_CLS = { enha: 'tag-enha', stat: 'tag-stat', pet: 'tag-pet', summon: 'tag-summon', etc: 'tag-etc' };
+
+// ════════════════════════════════════
+// 유틸
+// ════════════════════════════════════
+function fmtNum(n)    { return Number(n).toLocaleString('ko-KR'); }
+function fmtSec(sec)  { const m = Math.floor(sec/60), s = sec%60; return s===0?`${m}분`:`${m}분 ${s}초`; }
+function dropColor(p) { return p>=50?'#34d399':p>=20?'#5b8dee':p>=10?'#f0c040':p>=3?'#fb923c':'#f87171'; }
+
+function parsePatList(str) {
+  if (!str && str!==0) return [];
+  return String(str).split(',').map(s=>parseInt(s.trim())).filter(n=>!isNaN(n));
+}
+function parseItemKey(k) {
+  const parts = String(k).split('_');
+  const last  = parts[parts.length-1];
+  if (parts.length>=2 && /^\d+$/.test(last))
+    return { base: parts.slice(0,-1).join(''), qty: parseInt(last) };
+  return { base: String(k), qty: null };
+}
+function getItem(key) {
+  const { base, qty } = parseItemKey(key);
+  const info = ITEM_INFO[base] || { icon: '📦', desc: '아이템', tag: 'etc', label: '기타' };
+  return { ...info, base, qty };
+}
+
+// ════════════════════════════════════
+// HTML 조각 생성
+// ════════════════════════════════════
+function patternChip(num) {
+  const p = PATTERNS[num];
+  if (!p) return `<div class="pattern-chip">
+    <div class="pattern-dot" style="background:#666"></div>
+    <span class="p-icon">❓</span>
+    <div><div class="p-name">패턴${num}</div><div class="p-desc">추후 공개 예정</div></div>
+  </div>`;
+  return `<div class="pattern-chip">
+    <div class="pattern-dot" style="background:${p.color}"></div>
+    <span class="p-icon">${p.icon}</span>
+    <div><div class="p-name">${p.name}</div><div class="p-desc">${p.desc}</div></div>
+  </div>`;
+}
+
+function phaseCard(label, cls, hp, timeSec, patterns) {
+  const hpH   = hp      !== null ? `<span>❤️ <strong>${fmtNum(hp)}</strong></span>` : '';
+  const timeH  = timeSec !== null ? `<span>⏱️ <strong>${fmtSec(timeSec)}</strong></span>` : '';
+  const patH   = patterns.length>0
+    ? `<div class="pattern-grid">${patterns.map(patternChip).join('')}</div>`
+    : `<div class="no-pattern">⚡ 패턴 없음 — 순수 공격 구간</div>`;
+  return `<div class="phase-card">
+    <div class="phase-badge ${cls}">${label}</div>
+    <div class="phase-info">
+      <div class="phase-stats">${hpH}${timeH}</div>
+      ${patH}
+    </div>
+  </div>`;
+}
+
+function dropRow(drop) {
+  const { icon, desc, tag, label, base, qty } = getItem(drop.key);
+  const pct   = drop.pct;
+  const color = dropColor(pct);
+  const barW  = Math.min(100, pct * 1.5);
+  return `<div class="drop-row">
+    <div class="drop-item-icon">${icon}</div>
+    <div class="drop-left">
+      <div class="drop-name-row">
+        <span class="drop-name">${base}</span>
+        ${qty!==null ? `<span class="drop-qty-tag">×${fmtNum(qty)}</span>` : ''}
+        <span class="item-type-tag ${TAG_CLS[tag]||'tag-etc'}">${label}</span>
+      </div>
+      <div class="drop-desc">${desc}</div>
+    </div>
+    <div class="drop-right">
+      <div class="drop-pct-bar"><div class="drop-pct-fill" style="width:${barW}%;background:${color}"></div></div>
+      <span class="drop-pct-text" style="color:${color}">${pct}%</span>
+    </div>
+  </div>`;
+}
+
+function buildRaidHTML(raid) {
+  const c = raid.color;
+
+  // header
+  const header = `<div class="raid-header" style="border-color:${c}55;background:${c}0d;">
+    <div class="raid-bg-layer" style="background:${c};"></div>
+    <div class="raid-big-emoji">${raid.emoji}</div>
+    <div class="raid-title-group">
+      <div class="raid-name" style="color:${c};">${raid.name}${raid.isEvent?'<span class="event-badge">이벤트</span>':''}</div>
+      <div class="raid-sub">보스 레이드 상세 정보</div>
+    </div>
+  </div>`;
+
+  // stats
+  const tktColor = raid.ticket===0 ? 'var(--green)' : 'var(--gold)';
+  const tktTxt   = raid.ticket===0 ? '무료' : `${raid.ticket}점`;
+  const stats = `<div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-label">🎟️ 입장권 소모</div>
+      <div class="stat-value" style="color:${tktColor};">${tktTxt}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">⏱️ 제한 시간</div>
+      <div class="stat-value">${fmtSec(raid.timeSec)}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">❤️ HP 범위</div>
+      <div class="stat-value" style="font-size:15px;">${fmtNum(raid.hpMin)}~${fmtNum(raid.hpMax)}</div>
+      ${raid.hpPerMember>0?`<div class="stat-unit">참여자당 +${fmtNum(raid.hpPerMember)}</div>`:''}
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🐾 펫 경험치</div>
+      <div class="stat-value">${fmtNum(raid.exp)}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">⚔️ 최소 공격</div>
+      <div class="stat-value">${raid.minAttacks}회</div>
+      <div class="stat-unit">보상 수령 기준</div>
+    </div>
+  </div>`;
+
+  // phases
+  const hasEarly = raid.phase1 !== null || raid.phase2 !== null;
+  let phaseInner = '';
+  if (raid.phase1) {
+    phaseInner += phaseCard('1단계','p1', raid.phase1.hp, raid.phase1.timeSec, raid.phase1.patterns);
+    phaseInner += `<div class="phase-arrow">↓</div>`;
+  }
+  if (raid.phase2) {
+    phaseInner += phaseCard('2단계','p2', raid.phase2.hp, raid.phase2.timeSec, raid.phase2.patterns);
+    phaseInner += `<div class="phase-arrow">↓</div>`;
+  }
+  const finLabel = hasEarly ? '최종 단계' : '단일 페이즈';
+  const finCls   = hasEarly ? 'pfin' : 'psingle';
+  phaseInner += phaseCard(finLabel, finCls, null, hasEarly ? raid.timeSec : null, raid.finalPatterns);
+
+  const phases = `<div class="section-label">⚡ 페이즈 구성</div>
+    <div class="phase-flow">${phaseInner}</div>`;
+
+  // drops
+  const drops = `<div class="section-label" style="margin-top:20px;">🎁 드랍 아이템 (확률)</div>
+    <div class="drop-list">${raid.drops.map(dropRow).join('')}</div>`;
+
+  return `<div class="raid-section" id="raid-${raid.id}">
+    ${header}${stats}${phases}${drops}
+  </div>`;
+}
+
+// ════════════════════════════════════
+// 탭 전환
+// ════════════════════════════════════
+function switchTab(id) {
+  document.querySelectorAll('.raid-section').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('raid-'+id)?.classList.add('active');
+  document.getElementById('tab-'+id)?.classList.add('active');
+}
+
+// ════════════════════════════════════
+// 엑셀 파싱
+// ════════════════════════════════════
+function parseExcel(wb) {
+  // 레이드설정
+  const ws1    = wb.Sheets['레이드설정'];
+  const rows1  = XLSX.utils.sheet_to_json(ws1, { header:1, defval:null });
+  const hdr    = rows1[0] || [];
+  const col    = name => hdr.indexOf(name);
+
+  // DATA
+  const ws2   = wb.Sheets['DATA'];
+  const rows2 = XLSX.utils.sheet_to_json(ws2, { header:1, defval:null });
+
+  // 보상 테이블
+  const rewards = {};
+  let inReward = false;
+  for (const r of rows2) {
+    if (r[0]==='보상테이블') { inReward=true; continue; }
+    if (!inReward) continue;
+    if (!r[0] || r[1]==='아이템KEY') continue;
+    const rname = String(r[0]);
+    const ikey  = String(r[1]);
+    const w     = parseFloat(r[2]) || 0;
+    if (!rewards[rname]) rewards[rname] = [];
+    rewards[rname].push({ key: ikey, pct: w });
+  }
+
+  // 레이드 행
+  const raids = [];
+  for (let i=1; i<rows1.length; i++) {
+    const r = rows1[i];
+    if (!r) continue;
+    const active = String(r[col('활성화여부')]||'').trim().toUpperCase();
+    if (active !== 'O') continue;
+
+    const name = String(r[col('표시이름')]||'').trim();
+    const id   = 'r_' + name;
+
+    const p1hp  = r[col('1단계HP')];
+    const p1sec = r[col('1단계시간(초)')];
+    const p1pat = parsePatList(r[col('1단계패턴')]);
+    const p2hp  = r[col('2단계HP')];
+    const p2sec = r[col('2단계시간(초)')];
+    const p2pat = parsePatList(r[col('2단계패턴')]);
+    const finPat = parsePatList(r[col('최종패턴')]);
+
+    raids.push({
+      id,
+      name,
+      emoji:       String(r[col('이모지')]||'🐉'),
+      color:       '#'+String(r[col('색상HEX')]||'888888').replace('#',''),
+      isEvent:     String(r[col('이벤트여부')]||'').trim().toUpperCase()==='O',
+      ticket:      Number(r[col('입장권소모')])||0,
+      hpMin:       Number(r[col('HP최솟값')])||0,
+      hpMax:       Number(r[col('HP최댓값')])||0,
+      hpPerMember: Number(r[col('참여자당HP증가')])||0,
+      timeSec:     Number(r[col('제한시간(초)')])||600,
+      exp:         Number(r[col('펫경험치')])||0,
+      minAttacks:  Number(r[col('최소공격횟수')])||1,
+      phase1:  p1hp!==null ? { hp:p1hp, timeSec:p1sec, patterns:p1pat } : null,
+      phase2:  p2hp!==null ? { hp:p2hp, timeSec:p2sec, patterns:p2pat } : null,
+      finalPatterns: finPat,
+      drops: rewards[name] || [],
+    });
+  }
+  return raids;
+}
+
+// ════════════════════════════════════
+// 렌더링
+// ════════════════════════════════════
+function render(raids) {
+  const tabNav  = document.getElementById('tabNav');
+  const content = document.getElementById('raidContent');
+  tabNav.innerHTML = '';
+  content.innerHTML = '';
+  raids.forEach((raid, i) => {
+    tabNav.innerHTML += `<button class="tab-btn${i===0?' active':''}"
+      onclick="switchTab('${raid.id}')" id="tab-${raid.id}">
+      <span class="tab-emoji">${raid.emoji}</span><span>${raid.name}</span>
+    </button>`;
+    content.innerHTML += buildRaidHTML(raid);
+  });
+  if (raids.length>0)
+    document.getElementById('raid-'+raids[0].id).classList.add('active');
+}
+
+// ════════════════════════════════════
+// 엑셀 로드 (fetch)
+// ════════════════════════════════════
+async function loadData() {
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('main-content').style.display = 'none';
+  document.getElementById('error-box').style.display = 'none';
+  try {
+    const res = await fetch('raid_config.xlsx?v=' + Date.now());
+    if (!res.ok) throw new Error(`HTTP ${res.status} — 파일을 찾지 못했습니다`);
+    const buf  = await res.arrayBuffer();
+    const wb   = XLSX.read(new Uint8Array(buf), { type: 'array' });
+    const raids = parseExcel(wb);
+    render(raids);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-box').style.display = 'block';
+    document.getElementById('error-detail').textContent = String(e.message || e);
+  }
+}
+
+loadData();
+</script>
+</body>
+</html>
