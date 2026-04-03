@@ -389,7 +389,7 @@
   }
   .item-card {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 14px;
     background: var(--bg2);
     border: 1px solid var(--border);
@@ -402,6 +402,40 @@
   .item-card .item-info { flex: 1; min-width: 0; }
   .item-card .item-name { font-weight: 700; font-size: 14px; color: var(--text); margin-bottom: 2px; }
   .item-card .item-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+  .item-card .item-type-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+  .item-sell-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    padding: 5px 10px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 11px;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .item-sell-info .sell-label {
+    font-weight: 700;
+    color: var(--green);
+    white-space: nowrap;
+  }
+  .item-sell-info .sell-reward {
+    color: var(--gold);
+    font-weight: 600;
+  }
+  .item-nosell {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
 
   @media (max-width: 600px) {
     .stat-grid { grid-template-columns: repeat(2, 1fr); }
@@ -493,8 +527,20 @@ const TYPE_TAG_MAP = {
   'pet_reset':      { tag: 'pet', label: '펫' },
   'pet_full_reset': { tag: 'pet', label: '펫' },
   'pet_select_reset': { tag: 'pet', label: '펫' },
+  'pet_designated_reset': { tag: 'pet', label: '펫' },
   'pet_egg':        { tag: 'pet', label: '펫' },
+  'pet_egg_select': { tag: 'pet', label: '펫' },
   'pet_exp':        { tag: 'pet', label: '펫' },
+  'period_credits': { tag: 'etc', label: '월경' },
+  'hunt_chest_common':    { tag: 'etc', label: '상자' },
+  'hunt_chest_rare':      { tag: 'etc', label: '상자' },
+  'hunt_chest_epic':      { tag: 'etc', label: '상자' },
+  'hunt_chest_legendary': { tag: 'etc', label: '상자' },
+  'bundle_reset_orb':     { tag: 'pet', label: '꾸러미' },
+  'bundle_full_reset_orb':{ tag: 'pet', label: '꾸러미' },
+  'bundle_designated_reset_orb':{ tag: 'pet', label: '꾸러미' },
+  'awakening':      { tag: 'pet', label: '각성' },
+  'awakening_cc3':  { tag: 'pet', label: '각성' },
 };
 const TAG_CLS = { enha: 'tag-enha', stat: 'tag-stat', pet: 'tag-pet', summon: 'tag-summon', etc: 'tag-etc' };
 
@@ -673,11 +719,42 @@ function buildRaidHTML(raid) {
 // 아이템 카드 생성
 // ════════════════════════════════════
 function buildItemCard(item) {
+  const tagInfo = TYPE_TAG_MAP[item.type] || { tag: 'etc', label: '기타' };
+  const tagCls = TAG_CLS[tagInfo.tag] || 'tag-etc';
+
+  // 판매 보상 정보
+  let sellHTML = '';
+  if (item.sellable) {
+    const rewards = [];
+    if (item.sellEP) {
+      rewards.push(`<span class="sell-reward">💎 강화포인트 +${fmtNum(item.sellEP)}</span>`);
+    }
+    if (item.sellItemKey) {
+      // sellItemKey로 ITEM_DB에서 아이템 정보 참조
+      const rewardItem = ITEM_DB[item.sellItemKey];
+      const rewardIcon = rewardItem ? rewardItem.icon : '📦';
+      const rewardName = rewardItem ? rewardItem.displayName : item.sellItemKey;
+      const qtyStr = item.sellItemQty ? ` ×${fmtNum(item.sellItemQty)}` : '';
+      rewards.push(`<span class="sell-reward">${rewardIcon} ${rewardName}${qtyStr}</span>`);
+    }
+    if (rewards.length > 0) {
+      sellHTML = `<div class="item-sell-info"><span class="sell-label">💰 판매 →</span>${rewards.join('<span style="color:var(--muted);margin:0 2px;">+</span>')}</div>`;
+    } else {
+      sellHTML = `<div class="item-nosell">판매 가능 (보상 없음)</div>`;
+    }
+  } else {
+    sellHTML = `<div class="item-nosell">🚫 판매 불가</div>`;
+  }
+
   return `<div class="item-card">
     <div class="item-icon">${item.icon}</div>
     <div class="item-info">
-      <div class="item-name">${item.displayName}</div>
+      <div class="item-type-row">
+        <span class="item-name">${item.displayName}</span>
+        <span class="item-type-tag ${tagCls}">${tagInfo.label}</span>
+      </div>
       <div class="item-desc">${item.desc}</div>
+      ${sellHTML}
     </div>
   </div>`;
 }
@@ -729,7 +806,11 @@ function parseItemsExcel(wb) {
       tag: tagInfo.tag,
       label: tagInfo.label,
       baseName,
-      qty
+      qty,
+      sellable: String(r[6] || '').trim().toUpperCase() === 'O',
+      sellEP: r[7] ? Number(r[7]) : null,
+      sellItemKey: r[8] ? String(r[8]).trim() : null,
+      sellItemQty: r[9] ? Number(r[9]) : null,
     };
     
     items.push(itemData);
