@@ -437,6 +437,73 @@
     border-radius: 6px;
   }
 
+  /* 검색바 */
+  .item-search-wrap {
+    position: relative;
+    margin-bottom: 16px;
+  }
+  .item-search-wrap .search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: var(--muted);
+    pointer-events: none;
+  }
+  .item-search {
+    width: 100%;
+    padding: 12px 16px 12px 44px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .item-search::placeholder { color: var(--muted); }
+  .item-search:focus { border-color: rgba(91,141,238,0.5); }
+  .item-search-count {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .item-no-result {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  /* 획득경로 태그 */
+  .item-sources {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .source-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .source-raid    { background: rgba(248,113,113,0.15); color: #fca5a5; }
+  .source-hunt    { background: rgba(52,211,153,0.15);  color: #6ee7b7; }
+  .source-sell    { background: rgba(240,192,64,0.15);  color: #fcd34d; }
+  .source-bundle  { background: rgba(168,85,247,0.15);  color: #d8b4fe; }
+  .source-shop    { background: rgba(91,141,238,0.15);  color: #93c5fd; }
+
   @media (max-width: 600px) {
     .stat-grid { grid-template-columns: repeat(2, 1fr); }
     .raid-header { flex-direction: column; gap: 12px; }
@@ -501,6 +568,11 @@
           <p>게임에서 획득 가능한 모든 아이템 (items.xlsx 기준)</p>
         </div>
       </div>
+      <div class="item-search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="item-search" id="itemSearch" placeholder="아이템 이름, 설명, 획득경로로 검색..." oninput="filterItems()">
+        <span class="item-search-count" id="itemSearchCount"></span>
+      </div>
       <div class="item-grid" id="itemGrid"></div>
     </div>
 
@@ -517,6 +589,12 @@ let PATTERNS = {};
 // 아이템 정보 (items.xlsx에서 동적으로 로드)
 // ════════════════════════════════════
 let ITEM_DB = {};
+
+// 아이템 획득경로 매핑 (아이템키 → [{type, name, emoji}])
+let ITEM_SOURCES = {};
+
+// 전체 아이템 목록 (검색용)
+let ALL_ITEMS = [];
 
 // 타입별 태그 매핑
 const TYPE_TAG_MAP = {
@@ -730,7 +808,6 @@ function buildItemCard(item) {
       rewards.push(`<span class="sell-reward">💎 강화포인트 +${fmtNum(item.sellEP)}</span>`);
     }
     if (item.sellItemKey) {
-      // sellItemKey로 ITEM_DB에서 아이템 정보 참조
       const rewardItem = ITEM_DB[item.sellItemKey];
       const rewardIcon = rewardItem ? rewardItem.icon : '📦';
       const rewardName = rewardItem ? rewardItem.displayName : item.sellItemKey;
@@ -746,7 +823,19 @@ function buildItemCard(item) {
     sellHTML = `<div class="item-nosell">🚫 판매 불가</div>`;
   }
 
-  return `<div class="item-card">
+  // 획득경로 태그
+  const sources = ITEM_SOURCES[item.key] || [];
+  let sourceHTML = '';
+  if (sources.length > 0) {
+    const tags = sources.map(s => `<span class="source-tag ${s.cls}">${s.emoji} ${s.name}</span>`).join('');
+    sourceHTML = `<div class="item-sources">${tags}</div>`;
+  }
+
+  // 검색용 데이터 속성
+  const sourceText = sources.map(s => s.name).join(' ');
+  const searchData = `${item.displayName} ${item.desc} ${tagInfo.label} ${sourceText}`.toLowerCase();
+
+  return `<div class="item-card" data-search="${searchData.replace(/"/g, '&quot;')}">
     <div class="item-icon">${item.icon}</div>
     <div class="item-info">
       <div class="item-type-row">
@@ -754,6 +843,7 @@ function buildItemCard(item) {
         <span class="item-type-tag ${tagCls}">${tagInfo.label}</span>
       </div>
       <div class="item-desc">${item.desc}</div>
+      ${sourceHTML}
       ${sellHTML}
     </div>
   </div>`;
@@ -927,8 +1017,94 @@ function renderRaids(raids) {
 }
 
 function renderItems(items) {
+  ALL_ITEMS = items;
   const grid = document.getElementById('itemGrid');
   grid.innerHTML = items.map(buildItemCard).join('');
+  updateSearchCount(items.length, items.length);
+}
+
+function filterItems() {
+  const query = document.getElementById('itemSearch').value.toLowerCase().trim();
+  const cards = document.querySelectorAll('#itemGrid .item-card');
+  let visible = 0;
+  
+  cards.forEach(card => {
+    const data = card.getAttribute('data-search') || '';
+    const match = !query || query.split(/\s+/).every(q => data.includes(q));
+    card.style.display = match ? '' : 'none';
+    if (match) visible++;
+  });
+  
+  updateSearchCount(visible, cards.length);
+  
+  // 검색 결과 없을 때 안내
+  let noResult = document.getElementById('itemNoResult');
+  if (visible === 0 && query) {
+    if (!noResult) {
+      noResult = document.createElement('div');
+      noResult.id = 'itemNoResult';
+      noResult.className = 'item-no-result';
+      document.getElementById('itemGrid').appendChild(noResult);
+    }
+    noResult.innerHTML = `😕 "<strong>${query}</strong>" 에 해당하는 아이템이 없습니다`;
+    noResult.style.display = '';
+  } else if (noResult) {
+    noResult.style.display = 'none';
+  }
+}
+
+function updateSearchCount(visible, total) {
+  const el = document.getElementById('itemSearchCount');
+  const query = document.getElementById('itemSearch').value.trim();
+  el.textContent = query ? `${visible} / ${total}` : `총 ${total}개`;
+}
+
+// 레이드 보상 → 아이템 획득경로 역매핑
+function buildSourceMap(raids, items) {
+  ITEM_SOURCES = {};
+  
+  // 1. 레이드 드랍 경로
+  for (const raid of raids) {
+    for (const drop of raid.drops) {
+      if (!ITEM_SOURCES[drop.key]) ITEM_SOURCES[drop.key] = [];
+      // 중복 방지
+      if (!ITEM_SOURCES[drop.key].some(s => s.name === raid.name)) {
+        ITEM_SOURCES[drop.key].push({
+          type: 'raid',
+          cls: 'source-raid',
+          emoji: raid.emoji,
+          name: raid.name
+        });
+      }
+    }
+  }
+  
+  // 2. 사냥 상자 타입
+  for (const item of items) {
+    if (item.type && item.type.startsWith('hunt_chest')) {
+      if (!ITEM_SOURCES[item.key]) ITEM_SOURCES[item.key] = [];
+      ITEM_SOURCES[item.key].push({ type: 'hunt', cls: 'source-hunt', emoji: '🏹', name: '사냥' });
+    }
+  }
+  
+  // 3. 꾸러미/번들 타입
+  for (const item of items) {
+    if (item.type && item.type.startsWith('bundle_')) {
+      if (!ITEM_SOURCES[item.key]) ITEM_SOURCES[item.key] = [];
+      ITEM_SOURCES[item.key].push({ type: 'bundle', cls: 'source-bundle', emoji: '🎁', name: '꾸러미' });
+    }
+  }
+  
+  // 4. 판매 보상으로 획득 가능한 아이템 (다른 아이템을 판매해서 얻는 경우)
+  for (const item of items) {
+    if (item.sellItemKey && ITEM_DB[item.sellItemKey]) {
+      const targetKey = item.sellItemKey;
+      if (!ITEM_SOURCES[targetKey]) ITEM_SOURCES[targetKey] = [];
+      if (!ITEM_SOURCES[targetKey].some(s => s.type === 'sell')) {
+        ITEM_SOURCES[targetKey].push({ type: 'sell', cls: 'source-sell', emoji: '💰', name: '판매보상' });
+      }
+    }
+  }
 }
 
 // ════════════════════════════════════
@@ -954,7 +1130,10 @@ async function loadData() {
     const raidWb = XLSX.read(new Uint8Array(raidBuf), { type: 'array' });
     const raids = parseRaidExcel(raidWb);
     
-    // 3. 렌더링
+    // 3. 획득경로 매핑 (레이드 파싱 후 아이템과 연결)
+    buildSourceMap(raids, items);
+    
+    // 4. 렌더링
     renderRaids(raids);
     renderItems(items);
     
